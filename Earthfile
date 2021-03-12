@@ -1,6 +1,9 @@
+FROM alpine:latest
+ARG MYLIBS=Diff-0.4.0 base-compat-0.11.2 base-orphans-0.8.4 dlist-1.0 hashable-1.3.0.0 indexed-traversable-0.1.1 integer-logarithms-1.0.3.1 primitive-0.7.1.0 regex-base-0.94.0.0 splitmix-0.1.0.3 tagged-0.8.6.1 th-abstraction-0.4.2.0 transformers-compat-0.6.6 base-compat-batteries-0.11.2 time-compat-1.9.5 unordered-containers-0.2.13.0 data-fix-0.3.1 vector-0.12.2.0 scientific-0.3.6.2 regex-tdfa-1.3.1.0 random-1.2.0 distributive-0.6.2.1 attoparsec-0.13.2.5 uuid-types-1.0.3 comonad-5.0.8 bifunctors-5.5.10 assoc-1.0.2 these-1.1.1.1 strict-0.4.0.1 aeson-1.5.5.1
+
 aarch64-linux-gnu-deps:
     FROM ubuntu:20.04
-    
+
     ENV TARGET aarch64-linux-gnu
     ENV TARGETNAME linux.aarch64
     
@@ -8,6 +11,7 @@ aarch64-linux-gnu-deps:
     USER root
     ENV DEBIAN_FRONTEND noninteractive
     RUN apt-get update && apt-get install -y ghc automake autoconf build-essential llvm curl file qemu-user-static gcc-$TARGET
+
     
     # Build GHC
     WORKDIR /ghc
@@ -16,18 +20,16 @@ aarch64-linux-gnu-deps:
     RUN cp mk/flavours/quick-cross.mk mk/build.mk && make -j "$(nproc)"
     RUN make install
     RUN curl -L "https://downloads.haskell.org/~cabal/cabal-install-3.2.0.0/cabal-install-3.2.0.0-x86_64-unknown-linux.tar.xz" | tar xJv -C /usr/local/bin
+
+    # Prebuild the dependencies
+    RUN cabal update
     
     # Due to an apparent cabal bug, we specify our options directly to cabal
     # It won't reuse caches if ghc-options are specified in ~/.cabal/config
-    ENV CABALOPTS "--ghc-options;-split-sections -optc-Os -optc-Wl,--gc-sections;--with-ghc=$TARGET-ghc;--with-hc-pkg=$TARGET-ghc-pkg"
-    
-    # Prebuild the dependencies
-    RUN cabal update && IFS=';' && cabal install $CABALOPTS --lib Diff-0.4.0 base-compat-0.11.2 base-orphans-0.8.4 dlist-1.0 hashable-1.3.0.0 indexed-traversable-0.1.1 integer-logarithms-1.0.3.1 primitive-0.7.1.0 regex-base-0.94.0.0 splitmix-0.1.0.3 tagged-0.8.6.1 th-abstraction-0.4.2.0 transformers-compat-0.6.6 base-compat-batteries-0.11.2 time-compat-1.9.5 unordered-containers-0.2.13.0 data-fix-0.3.1 vector-0.12.2.0 scientific-0.3.6.2 regex-tdfa-1.3.1.0 random-1.2.0 distributive-0.6.2.1 attoparsec-0.13.2.5 uuid-types-1.0.3 comonad-5.0.8 bifunctors-5.5.10 assoc-1.0.2 these-1.1.1.1 strict-0.4.0.1 aeson-1.5.5.1
+    ENV CABALOPTS "--with-ghc=$TARGET-ghc --with-hc-pkg=$TARGET-ghc-pkg --ghc-options=\"-split-sections -optc-Os -optc-Wl,--gc-sections\""
 
-    RUN cabal update
-    
-    # Copy the build script
-    #COPY build /usr/bin
+    RUN echo cabal install  $CABALOPTS --lib $MYLIBS m
+    RUN asdf
 
 x86-64-linux-deps:
     FROM ubuntu:20.04
@@ -50,6 +52,9 @@ x86-64-linux-deps:
     ENV CABALOPTS "--ghc-options;-optl-Wl,-fuse-ld=bfd -split-sections -optc-Os -optc-Wl,--gc-sections"
     
     # Other archs pre-build dependencies here, but this one doesn't to detect ecosystem movement
+
+    # TODO other archs call cabal instal $CABALOPTS --LIB $MYLIBS, but according 
+    # to https://github.com/koalaman/shellcheck/blob/master/build/linux.x86_64/Dockerfile there's nothing to be done for x86-64 linux; double check if this is correct.
     
     RUN cabal update
 
@@ -106,6 +111,19 @@ x86-64-darwin-deps:
     RUN cabal update && IFS=';' && cabal install $CABALOPTS --lib Diff-0.4.0 base-compat-0.11.2 base-orphans-0.8.4 dlist-1.0 hashable-1.3.0.0 indexed-traversable-0.1.1 integer-logarithms-1.0.3.1 primitive-0.7.1.0 regex-base-0.94.0.0 splitmix-0.1.0.3 tagged-0.8.6.1 th-abstraction-0.4.2.0 transformers-compat-0.6.6 base-compat-batteries-0.11.2 time-compat-1.9.5 unordered-containers-0.2.13.0 data-fix-0.3.1 vector-0.12.2.0 scientific-0.3.6.2 regex-tdfa-1.3.1.0 random-1.2.0 distributive-0.6.2.1 attoparsec-0.13.2.5 uuid-types-1.0.3 comonad-5.0.8 bifunctors-5.5.10 assoc-1.0.2 these-1.1.1.1 strict-0.4.0.1 aeson-1.5.5.1
     RUN cabal update
 
+
+test:
+    ARG target
+    FROM +$target-deps
+    RUN env
+
+    #IF [ $target = "aarch64-linux" ]
+    #    FROM +aarch64-linux-gnu-deps
+    #    
+    #END
+
+test2:
+    BUILD --build-arg target=aarch64-linux-gnu +test
 
 test-aarch64-linux:
     FROM +aarch64-linux-gnu-deps
