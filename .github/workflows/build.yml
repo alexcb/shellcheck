@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Build latest earthly using released earthly
+      - name: build and test shellcheck for darwin
         run: earthly +test-x86-64-darwin
   test-windows:
     name: +test-x86-64-windows
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Build latest earthly using released earthly
+      - name: build and test shellcheck for windows
         run: earthly +test-x86-64-windows
   test-x86-64-linux:
     name: +test-x86-64-linux
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Build latest earthly using released earthly
+      - name: build and test shellcheck for linux
         run: earthly +test-x86-64-linux
   test-aarch64-linux:
     name: +test-aarch64-linux
@@ -49,5 +49,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Build latest earthly using released earthly
+      - name: build and test shellcheck for aarch64 linux
         run: earthly +test-aarch64-linux
