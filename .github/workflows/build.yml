@@ -17,9 +17,7 @@ jobs:
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: docker prelogin
-        run: echo -n "${{ secrets.DOCKERHUB_USERNAME }}" | sha1sum -
-      - name: docker prelogin2
-        run: echo -n "${{ secrets.DOCKERHUB_TOKEN }}" | sha1sum -
+        run: echo hello!
       - name: docker login
         run: docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: build and test shellcheck for darwin
