@@ -17,7 +17,7 @@ jobs:
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: docker login
-        run: "docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}""
+        run: docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: build and test shellcheck for darwin
         run: earthly --ci +test-x86-64-darwin
       - name: push shellcheck for darwin (main build)
@@ -34,7 +34,7 @@ jobs:
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: docker login
-        run: "docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}""
+        run: docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: build and test shellcheck for windows
         run: earthly --ci +test-x86-64-windows
       - name: push shellcheck for window (main build)
@@ -51,7 +51,7 @@ jobs:
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: docker login
-        run: "docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}""
+        run: docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: build and test shellcheck for linux
         run: earthly --ci +test-x86-64-linux
       - name: push shellcheck for linux (main build)
@@ -68,7 +68,7 @@ jobs:
       - name: Download released earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
       - name: docker login
-        run: "docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}""
+        run: docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: build and test shellcheck for aarch64 linux
         run: earthly --ci +test-aarch64-linux
       - name: push shellcheck for aarch64 linux (main build)
