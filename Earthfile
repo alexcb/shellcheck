@@ -30,7 +30,7 @@ aarch64-linux-gnu-deps:
     #COPY build /usr/bin
 
 	# push up a new layer so it can be cached for future runs
-	SAVE IMAGE --push alexcb/shellcheck-aarch64-linux-gnu-deps:latest
+	SAVE IMAGE --push alexcb/test-shellcheck:aarch64-linux-gnu-deps
 
 x86-64-linux-deps:
     FROM ubuntu:20.04
@@ -57,7 +57,7 @@ x86-64-linux-deps:
     RUN cabal update
 
 	# push up a new layer so it can be cached for future runs
-	SAVE IMAGE --push alexcb/shellcheck-x86-64-linux-deps:latest
+	SAVE IMAGE --push alexcb/test-shellcheck:x86-64-linux-deps
 
 x86-64-windows-deps:
     FROM ubuntu:20.04
@@ -87,7 +87,7 @@ x86-64-windows-deps:
     RUN wine /haskell/bin/cabal.exe update
 	
 	# push up a new layer so it can be cached for future runs
-	SAVE IMAGE --push alexcb/shellcheck-windows-deps:latest
+	SAVE IMAGE --push alexcb/test-shellcheck:windows-deps
 
 x86-64-darwin-deps:
     FROM liushuyu/osxcross:latest
@@ -117,7 +117,7 @@ x86-64-darwin-deps:
     RUN cabal update
 
 	# push up a new layer so it can be cached for future runs
-	SAVE IMAGE --push alexcb/shellcheck-darwin-deps:latest
+	SAVE IMAGE --push alexcb/test-shellcheck:darwin-deps
 
 
 test-aarch64-linux:
