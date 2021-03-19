@@ -120,27 +120,9 @@ x86-64-darwin-deps:
     SAVE IMAGE --push alexcb132/test-shellcheck:darwin-deps
 
 
-test-aarch64-linux:
-    FROM +aarch64-linux-gnu-deps
-
-    WORKDIR /scratch
-    COPY --dir * .
-    RUN rm -rf .git
-    RUN cabal test
-    RUN ./striptests
-    RUN cabal update
-    RUN mkdir "$TARGETNAME"
-    RUN ( IFS=';'; cabal build $CABALOPTS --enable-executable-static )
-    RUN find . -name shellcheck -type f -exec mv {} "$TARGETNAME/" ";"
-    RUN ls -l "$TARGETNAME"
-    RUN "$TARGET-strip" -s "$TARGETNAME/shellcheck"
-    RUN ls -l "$TARGETNAME"
-    RUN qemu-aarch64-static "$TARGETNAME/shellcheck" --version
-    RUN file "$TARGETNAME/shellcheck"
-
-
-test-x86-64-linux:
-    FROM +x86-64-linux-deps
+test:
+    ARG basetarget
+    FROM +"$basetarget"-deps
 
     WORKDIR /scratch
     COPY --dir * .
@@ -151,44 +133,32 @@ test-x86-64-linux:
     RUN cabal update
     RUN ( IFS=';'; cabal build $CABALOPTS --enable-executable-static )
     RUN find . -name shellcheck -type f -exec mv {} "$TARGETNAME/" ";"
-    RUN ls -l "$TARGETNAME"
     RUN strip -s "$TARGETNAME/shellcheck"
-    RUN ls -l "$TARGETNAME"
-    RUN "$TARGETNAME/shellcheck" --version
+
+    IF [ "$basetarget" = "aarch64-linux-gnu" ]
+        RUN qemu-aarch64-static "$TARGETNAME/shellcheck" --version
+    END
+    IF [ "$basetarget" = "x86-64-linux" ]
+        RUN "$TARGETNAME/shellcheck" --version
+    END
+    IF [ "$basetarget" = "x86-64-windows" ]
+        RUN wine "$TARGETNAME/shellcheck.exe" --version
+    END
+
+    # TODO add a test that greps the output of this to ensure it matches the architecture type
     RUN file "$TARGETNAME/shellcheck"
 
 test-x86-64-windows:
-    FROM +x86-64-windows-deps
-
-    WORKDIR /scratch
-    COPY --dir * .
-    RUN rm -rf .git
-    RUN wine /haskell/bin/cabal.exe test
-    RUN ./striptests
-    RUN mkdir "$TARGETNAME"
-    RUN wine /haskell/bin/cabal.exe update
-    RUN ( IFS=';'; wine /haskell/bin/cabal.exe build $CABALOPTS )
-    RUN find dist*/ -name shellcheck.exe -type f -ls -exec mv {} "$TARGETNAME/" ";"
-    RUN ls -l "$TARGETNAME"
-    RUN wine "/haskell/mingw/bin/strip.exe" -s "$TARGETNAME/shellcheck.exe"
-    RUN ls -l "$TARGETNAME"
-    RUN wine "$TARGETNAME/shellcheck.exe" --version
+    BUILD --build-arg basetarget=x86-64-windows +test
 
 test-x86-64-darwin:
-    FROM +x86-64-darwin-deps
+    BUILD --build-arg basetarget=x86-64-darwin-deps +test
 
-    WORKDIR /scratch
-    COPY --dir * .
-    RUN rm -rf .git
-    RUN cabal test
-    RUN ./striptests
-    RUN mkdir "$TARGETNAME"
-    RUN cabal update
-    RUN ( IFS=';'; cabal build $CABALOPTS )
-    RUN find . -name shellcheck -type f -exec mv {} "$TARGETNAME/" ";"
-    RUN ls -l "$TARGETNAME"
-    RUN "$TARGET-strip" -Sx "$TARGETNAME/shellcheck"
-    RUN ls -l "$TARGETNAME"
+test-aarch64-linux:
+    BUILD --build-arg basetarget=aarch64-linux-gnu +test
+
+test-x86-64-linux:
+    BUILD --build-arg basetarget=x86-64-linux +test
 
 all:
     BUILD +test-x86-64-darwin
