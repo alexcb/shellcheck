@@ -123,10 +123,9 @@ x86-64-darwin-deps:
 test:
     ARG basetarget
     FROM +"$basetarget"-deps
-
     WORKDIR /scratch
-    COPY --dir * .
-    RUN rm -rf .git
+    COPY --dir snap  src  test .
+    COPY ShellCheck.cabal  shellcheck.hs  stack.yaml  striptests .
     RUN cabal test
     RUN ./striptests
     RUN mkdir "$TARGETNAME"
